@@ -9,9 +9,9 @@
 
 #define prescaler 0b101;
 
-void delay(uint16_t us)
+void delay(uint8_t us)
 {
-    TMR0= 255 -(us>>5);
+    TMR0= 255 - us;
     while (TMR0);
 }
 
@@ -33,11 +33,11 @@ void main(void)
     while (1)
     {        
         GPIObits.GP2= 1;
-        delay(maxPulse);
+        delay(value);
         GPIObits.GP2= 0;
         if (!ADCON0bits.GO)
         {
-            value= ADRES;
+            value= (ADRES >> 3) + 21;
             ADCON0bits.GO= 1; // Start next conversion
         }
         delay(refreshTime);
