@@ -3,15 +3,15 @@
 
 #define _XTAL_FREQ  8000000
 
-#define refreshTime 15000 //us
-#define minPulse 1000 //us
-#define maxPulse 2000 //us
+#define refreshTime 5000 //us
+#define minPulse 700 //us
+#define maxPulse 1900 //us
 
-#define prescaler 0b100;
+#define prescaler 0b101;
 
 void delay(uint16_t us)
 {
-    TMR0= 255 -(us>>4);
+    TMR0= 255 -(us>>5);
     while (TMR0);
 }
 
@@ -31,15 +31,16 @@ void main(void)
     OPTION= prescaler; // Set Prescaler value
     
     while (1)
-    {
-//        if (!ADCON0bits.GO)
-//        {
-//            value= ADRES;
-//            ADCON0bits.GO= 1; // Start next conversion
-//        }
-        GPIObits.GP1= 1;
-        delay(1000);
-        GPIObits.GP1= 0;
-        delay(1000);
+    {        
+        GPIObits.GP2= 1;
+        delay(maxPulse);
+        GPIObits.GP2= 0;
+        if (!ADCON0bits.GO)
+        {
+            value= ADRES;
+            ADCON0bits.GO= 1; // Start next conversion
+        }
+        delay(refreshTime);
+        delay(refreshTime);
     }
 }
