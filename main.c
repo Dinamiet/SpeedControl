@@ -12,14 +12,12 @@
 void delay(uint16_t us)
 {
 	TMR0 = ~(us >> 5);
-	while (TMR0)
-		;
+	while (TMR0);
 }
 
 void main(void)
 {
 	uint16_t value		  = 0;
-	uint16_t flashCounter = 0;
 	uint8_t	 rawADC		  = 0;
 	// Setup GPIO
 	TRISGPIO = 0b11110001;
@@ -44,11 +42,6 @@ void main(void)
 			rawADC		  = ADRES;
 			value		  = ADRES * ((maxPulse - minPulse) / 255) + minPulse;
 			ADCON0bits.GO = 1; // Start next conversion
-		}
-		if (!flashCounter--)
-		{
-			GPIObits.GP1 ^= 1;
-			flashCounter = rawADC << 4;
 		}
 	}
 }
