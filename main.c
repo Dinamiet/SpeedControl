@@ -22,13 +22,16 @@
 void delay(uint16_t us)
 {
 	TMR0 = ~(us >> 5);
+    OPTION= prescaler;
 	while (TMR0);
 }
 
+uint16_t value		  = 0;
+uint8_t rawADC        = 255;
+uint8_t flashCounter = 0;
+
 void main(void)
-{
-	uint16_t value		  = 0;
-	uint8_t	 rawADC		  = 0;
+{    
 	// Setup GPIO
 	TRISGPIO = 0b11110001;
 	// Setup ADC
@@ -40,18 +43,38 @@ void main(void)
 	// Set timer0 to use internal clock
 	// Set Prescaler to be used for Timer0
 	OPTION = prescaler; // Set Prescaler value
-	while (1)
-	{
-		GPIObits.GP2 = 1;
-		delay(value);
-		GPIObits.GP2 = 0;
-		delay(refreshTime);
-
-		if (!ADCON0bits.GO)
+    ADCON0bits.GO= 1;
+    
+    // Save startup -> wait for position to be at low
+    while (rawADC > LED_ON_POS)
+    {
+        if (!ADCON0bits.GO)
 		{
-			rawADC		  = ADRES;
-			value		  = ADRES * ((maxPulse - minPulse) / 255) + minPulse;
+			GPIObits.GP1  = ADRES > LED_ON_POS;
+            rawADC= ADRES;
 			ADCON0bits.GO = 1; // Start next conversion
-		}
-	}
+		}  
+    }
+
+    while (1)
+    {
+        while (flashCounter--)
+        {        
+            GPIObits.GP2 = 1;
+            delay(value);
+            GPIObits.GP2 = 0;
+            delay(refreshTime);
+
+            if (!ADCON0bits.GO)
+            {
+                rawADC        = ADRES;
+                value		  = rawADC * ((maxPulse - minPulse) / 255) + minPulse;
+                ADCON0bits.GO = 1; // Start next conversion
+            }       
+        }
+        GPIObits.GP1 ^= 1;     
+        flashCounter= ~rawADC;
+        flashCounter= flashCounter >> 2;
+        flashCounter+= 2;
+    }
 }
