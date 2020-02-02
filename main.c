@@ -1,11 +1,21 @@
-#include <stdint.h>
-#include <xc.h>
+// CONFIG
+#pragma config IOSCFS = 8MHZ    // Internal Oscillator Frequency Select bit (8 MHz)
+#pragma config MCPU = OFF       // Master Clear Pull-up Enable bit (Pull-up disabled)
+#pragma config WDTE = OFF       // Watchdog Timer Enable bit (WDT disabled)
+#pragma config CP = OFF         // Code protection bit (Code protection off)
+#pragma config MCLRE = ON       // GP3/MCLR Pin Function Select bit (GP3/MCLR pin function is MCLR)
 
-#define _XTAL_FREQ 8000000
+// #pragma config statements should precede project file includes.
+// Use project enums instead of #define for ON and OFF.
+
+#include <xc.h>
+#include <stdint.h>
 
 #define refreshTime 5000 // us
 #define minPulse	700	 // us
 #define maxPulse	1900 // us
+
+#define LED_ON_POS  20
 
 #define prescaler 0b101;
 
